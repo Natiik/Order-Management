@@ -31,8 +31,6 @@ public class UserEntity {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "password")
-    private String password;
 
     @Column(name = "authority")
     private String authority;
@@ -41,7 +39,6 @@ public class UserEntity {
         return User.builder()
                 .id(this.id)
                 .email(this.email)
-                .password(this.password)
                 .authority(Authority.valueOf(authority))
                 .build();
     }

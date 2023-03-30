@@ -14,14 +14,12 @@ import java.util.UUID;
 public class User {
     private UUID id;
     private String email;
-    private String password;
     private Authority authority;
 
     public UserEntity toEntity() {
         return UserEntity.builder()
                 .id(this.id)
                 .email(this.email)
-                .password(this.password)
                 .authority(this.authority.name())
                 .build();
     }

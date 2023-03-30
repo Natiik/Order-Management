@@ -1,2 +1,20 @@
 server:
   port: 8888
+
+spring:
+  datasource:
+    driver-class-name: "${DB_DRIVER_NAME:org.postgresql.Driver}"
+    url: "${DB_URL:jdbc:postgresql://localhost:5432/orderManagement}"
+    username: "${DB_USERNAME:postgres}"
+    password: "${DB_PASSWORD:postgres}"
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+
+token:
+   ttl: '${TOKEN_TTL: 286000}'
+   refresh-ttl: '${REFRESH_TTL: 360000}'
+   signing-key: '${JWT_SIGNING_KEY: w2vzolsu74js1wvpj5f0}'
