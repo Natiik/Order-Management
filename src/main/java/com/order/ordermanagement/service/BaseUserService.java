@@ -24,10 +24,7 @@ public class BaseUserService implements UserService {
     @Override
     public User save(User currentUser, User user) {
         validateUser(user);
-        if (user.getId() != null) {
-            userPermissionService.checkPermissionForUser(currentUser, user.getId(), Operation.WRITE);
-        }
-//        String TODO
+        userPermissionService.checkPermissionForUser(currentUser, user.getId(), Operation.WRITE);
         UserEntity saved = userDaoService.save(user.toEntity());
         return saved.toData();
     }
@@ -53,6 +50,11 @@ public class BaseUserService implements UserService {
         if (user == null) {
             log.error("User is null");
             throw new IllegalArgumentException("User can't be null");
+        }
+
+        if (user.getId() == null) {
+            log.error("UserId is null");
+            throw new IllegalArgumentException("UserId can't be null");
         }
         ValidateUtil.validateEmail(user.getEmail());
     }
