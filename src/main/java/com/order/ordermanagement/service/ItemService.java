@@ -13,4 +13,5 @@ public interface ItemService {
     List<Item> findByIds(List<UUID> ids);
     void delete(UUID id);
 
+    void changeItemCount(UUID itemId, int count);
 }

@@ -19,7 +19,7 @@ public class ItemController extends BaseController {
     private final ItemService itemService;
 
     @PostMapping("/save")
-    @PreAuthorize("hasAnyAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<?> save(@RequestBody Item item) {
         try {
             Item saved = itemService.save(item);
@@ -30,7 +30,7 @@ public class ItemController extends BaseController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<?> findByid(@PathVariable UUID id) {
         try {
             Item item = itemService.findById(id);
@@ -41,7 +41,7 @@ public class ItemController extends BaseController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<?> delete(@PathVariable UUID id) {
         try {
             itemService.delete(id);

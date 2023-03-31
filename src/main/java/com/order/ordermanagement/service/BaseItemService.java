@@ -64,6 +64,14 @@ public class BaseItemService implements ItemService {
         itemInfoDaoService.delete(id);
     }
 
+    @Override
+    public void changeItemCount(UUID itemId, int count) {
+        Item item = findById(itemId);
+        int newCount = item.getCount() - count;
+        item.setCount(newCount);
+        save(item);
+    }
+
     private Item getItem(ItemInfoEntity info) {
         Optional<ItemRecordEntity> record = itemRecordDaoService.findById(info.getId());
         if (record.isEmpty()) {

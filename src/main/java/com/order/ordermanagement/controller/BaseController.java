@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import javax.management.OperationsException;
 import java.util.NoSuchElementException;
 
 public class BaseController {
@@ -30,8 +31,12 @@ public class BaseController {
             return new ResponseEntity<>(e.getMessage(), HttpStatusCode.valueOf(403));
         }
 
-        if(e instanceof NoSuchElementException){
+        if (e instanceof NoSuchElementException) {
             return new ResponseEntity<>(e.getMessage(), HttpStatusCode.valueOf(404));
+        }
+
+        if (e instanceof OperationsException) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatusCode.valueOf(403));
         }
 
         return new ResponseEntity<>(e.getMessage(), HttpStatusCode.valueOf(500));
