@@ -17,4 +17,5 @@ public class ValidateUtil {
             throw new IllegalArgumentException("Password is not valid");
         }
     }
+
 }

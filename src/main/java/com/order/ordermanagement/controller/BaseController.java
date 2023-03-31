@@ -3,11 +3,17 @@ package com.order.ordermanagement.controller;
 import com.order.ordermanagement.exception.InvalidJwtTokenException;
 import com.order.ordermanagement.exception.LoginException;
 import com.order.ordermanagement.exception.PermissionException;
+import com.order.ordermanagement.exception.UserAuthException;
+import com.order.ordermanagement.object.User;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.NoSuchElementException;
 
 public class BaseController {
-     ResponseEntity<?> handleException(Exception e) {
+    ResponseEntity<?> handleException(Exception e) {
         if (e instanceof IllegalArgumentException) {
             return new ResponseEntity<>(e.getMessage(), HttpStatusCode.valueOf(400));
         }
@@ -24,6 +30,18 @@ public class BaseController {
             return new ResponseEntity<>(e.getMessage(), HttpStatusCode.valueOf(403));
         }
 
+        if(e instanceof NoSuchElementException){
+            return new ResponseEntity<>(e.getMessage(), HttpStatusCode.valueOf(404));
+        }
+
         return new ResponseEntity<>(e.getMessage(), HttpStatusCode.valueOf(500));
+    }
+
+    User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new UserAuthException();
+        }
+        return (User) authentication.getPrincipal();
     }
 }
