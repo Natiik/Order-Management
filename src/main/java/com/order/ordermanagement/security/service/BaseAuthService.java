@@ -7,17 +7,20 @@ import com.order.ordermanagement.exception.LoginException;
 import com.order.ordermanagement.security.JwtPair;
 import com.order.ordermanagement.util.JwtUtils;
 import com.order.ordermanagement.util.ValidateUtil;
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class BaseAuthService implements AuthService {
+    private final static String EMAIL = "email";
     private final JwtUtils jwtUtils;
     private final UserDetailsServiceImpl userDetailsService;
 
@@ -29,21 +32,26 @@ public class BaseAuthService implements AuthService {
             throw new LoginException("Illegal email or password");
         }
 
-        String jwtToken = jwtUtils.generateToken(userDetails, new HashMap<>());
-        String refreshToken = jwtUtils.generateRefreshToken(userDetails, new HashMap<>());
+        Map<String, Object> claims = new HashMap<>(Map.of(EMAIL, loginRequest.email()));
+        String jwtToken = jwtUtils.generateToken(userDetails, claims);
+        String refreshToken = jwtUtils.generateRefreshToken(userDetails, claims);
         return new JwtPair(jwtToken, refreshToken);
     }
 
     @Override
     public JwtPair refreshToken(String oldRefreshToken) {
-        String userId = jwtUtils.extractUsername(oldRefreshToken);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+        String email = jwtUtils.extractClaim(oldRefreshToken, claims -> claims.get(EMAIL, String.class));
+        if (StringUtils.isEmpty(email)) {
+            log.error("Can't extract email from token {}", oldRefreshToken);
+            throw new InvalidJwtTokenException();
+        }
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         if (jwtUtils.isTokenValid(oldRefreshToken, userDetails)) {
             String jwtToken = jwtUtils.generateToken(userDetails, new HashMap<>());
             String refreshToken = jwtUtils.generateRefreshToken(userDetails, new HashMap<>());
             return new JwtPair(jwtToken, refreshToken);
         }
-        log.error("Provided refresh token is invalid for user {}", userId);
+        log.error("Provided refresh token is invalid for user {}", email);
         throw new InvalidJwtTokenException();
     }
 
@@ -54,8 +62,9 @@ public class BaseAuthService implements AuthService {
 
         try {
             UserDetails newUser = userDetailsService.createNewUser(registrationRequest);
-            String jwtToken = jwtUtils.generateToken(newUser, new HashMap<>());
-            String refreshToken = jwtUtils.generateRefreshToken(newUser, new HashMap<>());
+            Map<String, Object> claims = new HashMap<>(Map.of(EMAIL, registrationRequest.email()));
+            String jwtToken = jwtUtils.generateToken(newUser, claims);
+            String refreshToken = jwtUtils.generateRefreshToken(newUser, claims);
             return new JwtPair(jwtToken, refreshToken);
         } catch (Throwable e) {
             if (e.getCause() != null && e.getCause().getCause().getMessage() != null &&
